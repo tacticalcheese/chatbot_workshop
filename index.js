@@ -2,7 +2,7 @@
 
 const express = require('express'),
   bodyParser = require('body-parser'),
-  app = express().use(bodyParser.json()); // creates express http server
+  app = express().use(bodyParser.json());
 
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
 
@@ -53,6 +53,7 @@ app.post('/webhook', (req, res) => {
       logs.push(webhook_event);
       console.log(webhook_event);
       let sender_psid = webhook_event.sender.id;
+      logs.push(sender_psid);
       console.log('Sender PSID: ' + sender_psid);
       if (webhook_event.message) {
         handleMessage(sender_psid, webhook_event.message);
