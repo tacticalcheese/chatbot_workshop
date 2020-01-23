@@ -2,8 +2,7 @@
 
 const express = require('express'),
   bodyParser = require('body-parser'),
-  app = express().use(bodyParser.json()), // creates express http server,
-  PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
+  app = express().use(bodyParser.json()); // creates express http server
 
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
 
@@ -29,7 +28,7 @@ function callSendAPI(sender_psid, response) {
 
   request({
     "uri": "https://graph.facebook.com/v2.6/me/messages",
-    "qs": { "titkosjelszo": process.env.PAGE_ACCESS_TOKEN },
+    "qs": { "access_token": process.env.PAGE_ACCESS_TOKEN },
     "method": "POST",
     "json": request_body
   }, (err, res, body) => {
@@ -45,7 +44,6 @@ let logs = [];
 
 app.post('/webhook', (req, res) => {
   let body = req.body;
-  logs.push(body);
   if (body.object === 'page') {
     body.entry.forEach(function(entry) {
       let webhook_event = entry.messaging[0];
