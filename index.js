@@ -7,26 +7,56 @@ const express = require('express'),
 
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
 
-function handleMessage(sender_psid, received_message) {}
+function handleMessage(sender_psid, received_message) {
+  let response;
+  if (received_message.text) {    
+    response = {
+      "text": `You sent the message: "${received_message.text}". Now send me an image!`
+    }
+  }  
+  callSendAPI(sender_psid, response); 
+}
 
 function handlePostback(sender_psid, received_postback) {}
 
-function callSendAPI(sender_psid, response) {}
+function callSendAPI(sender_psid, response) {
+  let request_body = {
+    "recipient": {
+      "id": sender_psid
+    },
+    "message": response
+  }
+
+  request({
+    "uri": "https://graph.facebook.com/v2.6/me/messages",
+    "qs": { "titkosjelszo": process.env.PAGE_ACCESS_TOKEN },
+    "method": "POST",
+    "json": request_body
+  }, (err, res, body) => {
+    if (!err) {
+      console.log('message sent!')
+    } else {
+      console.error("Unable to send message:" + err);
+    }
+  }); 
+}
 
 let logs = [];
 
 app.post('/webhook', (req, res) => {
   let body = req.body;
   if (body.object === 'page') {
-    // Iterates over each entry - there may be multiple if batched
     body.entry.forEach(function(entry) {
-      // Gets the message. entry.messaging is an array, but
-      // will only ever contain one message, so we get index 0
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
       let sender_psid = webhook_event.sender.id;
       logs.push(sender_psid);
       console.log('Sender PSID: ' + sender_psid);
+      if (webhook_event.message) {
+        handleMessage(sender_psid, webhook_event.message);
+      } else if (webhook_event.postback) {
+        handlePostback(sender_psid, webhook_event.postback);
+      }
     });
     res.status(200).send('EVENT_RECEIVED');
   } else {
