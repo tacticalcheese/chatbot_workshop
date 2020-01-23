@@ -47,13 +47,12 @@ let logs = [];
 
 app.post('/webhook', (req, res) => {
   let body = req.body;
+  logs.push(req.body)
   if (body.object === 'page') {
     body.entry.forEach(function(entry) {
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
-      logs.push(webhook_event);
       let sender_psid = webhook_event.sender.id;
-      logs.push(sender_psid);
       console.log('Sender PSID: ' + sender_psid);
       if (webhook_event.message) {
         handleMessage(sender_psid, webhook_event.message);
