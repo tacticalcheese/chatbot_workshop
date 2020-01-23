@@ -13,6 +13,8 @@ function handlePostback(sender_psid, received_postback) {}
 
 function callSendAPI(sender_psid, response) {}
 
+let logs = [];
+
 app.post('/webhook', (req, res) => {
   let body = req.body;
   if (body.object === 'page') {
@@ -23,6 +25,7 @@ app.post('/webhook', (req, res) => {
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
       let sender_psid = webhook_event.sender.id;
+      logs.push(sender_psid);
       console.log('Sender PSID: ' + sender_psid);
     });
     res.status(200).send('EVENT_RECEIVED');
@@ -47,4 +50,8 @@ app.get('/webhook', (req, res) => {
       res.sendStatus(403);
     }
   }
+});
+
+app.get('/logs', (req, res) => {
+  res.send(logs);
 });
